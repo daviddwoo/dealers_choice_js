@@ -1,6 +1,4 @@
-const data = require('./data');
-
-module.exports = function() {
+module.exports = function(data) {
     return `
     <!DOCTYPE html>
     <html>
@@ -14,7 +12,7 @@ module.exports = function() {
           <img src="./knickslogo.png" id="logo">
         </div>
         <div class="main">
-          ${data.list().map(player => `
+          ${data.map(player => `
           <div class="player">
             <a href="/posts/${player.id}">
               <div id="text">

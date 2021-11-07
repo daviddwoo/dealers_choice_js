@@ -11,7 +11,7 @@ module.exports = function(post) {
         </div>
         <div>
           <div class="playerImage">
-            <img src=".${post.postImg}" id="postImg">
+            <img src=".${post.postimg}" id="postImg">
           </div>
           <div class="playerDetails">
             <h1 class="posth1">

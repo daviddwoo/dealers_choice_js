@@ -1,30 +1,40 @@
 const express = require('express');
-const app = express();
+const mainPost = require('./views/mainPost');
+const postDetails = require('./views/postDetails');
 const morgan = require('morgan');
-const data = require('./data');
-const mainPost = require('./mainPost');
-const postDetails = require('./postDetails');
-const error = require('./error')
+const db = require('./db');
+const client = db.client;
+
+const app = express();
 
 // Middleware functions
 app.use(morgan('dev'));
-app.use(express.static('public'));
+app.use(express.static('public')); 
 
-// Express Pipeline - Main Post Request
-app.get('/', (req, res) => {
-    res.send(mainPost());
+// Express Pipeline - Main Post Request Using Database Server
+app.get('/', async (req, res, next) => {
+    try {
+        const data = await client.query(`SELECT players.*, details.img FROM players JOIN details ON players.id = details.player_id`);
+        const players = data.rows;
+        res.send(mainPost(players));
+    }
+    catch(err) { next(err) } 
 })
 
-// Express Pipeline - Post Details Request
-app.get('/posts/:id', (req, res) => {
-    const player = data.find(req.params.id);
-    if (!player.id) res.status(404).send(error())
-    else res.send(postDetails(player))
+// Express Pipeline - Post Details Request Using Database Server
+app.get('/posts/:id', async (req, res, next) => {
+    try {
+        const response = await client.query(`SELECT details.*, players.name FROM details JOIN players ON players.id = details.player_id WHERE details.player_id=$1;`, [req.params.id]);
+        const playerDetail = response.rows[0];
+        res.send(postDetails(playerDetail));
+    }
+    catch(err) { next(err) }
 })
-
+ 
 const PORT = 3000;
 
 app.listen(PORT, () => {
-    console.log(`Listening on ${PORT}`);
-}) 
+    console.log(`Listening on port ${PORT}`);
+}); 
+ 
 
